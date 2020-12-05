@@ -10,11 +10,12 @@ use Symfony\Component\HttpFoundation\Request;
 $app = new Container(dirname(__DIR__));
 $app->singleton(Kernel::class);
 $app->singleton(Router::class);
+$app->singleton(Request::class);
 
 /** @var Kernel $kernel */
 $kernel = $app->make(Kernel::class);
 
-$kernel->handle($request = Request::createFromGlobals());
+$kernel->handle($request = Request::createFromGlobals())->send();
 
 //$router->dispatch($request)->send();
 

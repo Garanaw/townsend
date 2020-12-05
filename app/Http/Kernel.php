@@ -24,7 +24,7 @@ class Kernel
         try {
             $request->enableHttpMethodParameterOverride();
             $this->request = $request;
-            $this->container->bind('request', $request, true);
+            $this->container->instance(Request::class, $request);
 
             $response = $this->router->dispatch($request);
         } catch (Throwable $e) {

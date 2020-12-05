@@ -52,6 +52,11 @@ class Container
         $this->bindings[$abstract] = compact('concrete', 'shared');
     }
 
+    public function instance($abstract, $instance)
+    {
+        $this->instances[$abstract] = $instance;
+    }
+
     public function singleton($abstract, $concrete = null)
     {
         $this->bind($abstract, $concrete, true);

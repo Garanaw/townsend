@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class ShowContact
 {
-    public function __invoke()
+    public function __invoke(): string
     {
-        var_dump([
-            'aquí' => 'estoy'
-        ]);
+        return 'contactForm.php';
     }
 }

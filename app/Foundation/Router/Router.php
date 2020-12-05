@@ -6,6 +6,7 @@ use App\Foundation\Container;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class Router
 {
@@ -56,7 +57,7 @@ class Router
 
         $controller = $this->container->make($route['action']);
 
-        return $this->runRoute($request, $controller);
+        return $this->prepareResponse($this->runRoute($request, $controller));
     }
 
     private function findRoute(Request $request): ?array
@@ -74,6 +75,34 @@ class Router
 
     private function runRoute(Request $request, callable $action)
     {
-        
+        $response = $action();
+        if (is_string($response) && strpos($response, '.php')) {
+            $response = $this->renderResponse($response);
+        }
+
+        return $response;
+    }
+
+    private function renderResponse(string $path): string
+    {
+        $obLevel = ob_get_level();
+
+        ob_start();
+
+        // We'll evaluate the contents of the view inside a try/catch block so we can
+        // flush out any stray output that might get out before an error occurs or
+        // an exception is thrown. This prevents any partial views from leaking.
+        try {
+            require $this->container->basePath() . '/app/Views/' . $path;
+        } catch (Throwable $e) {
+//            $this->handleViewException($e, $obLevel);
+        }
+
+        return ltrim(ob_get_clean());
+    }
+
+    private function prepareResponse($content)
+    {
+        return new Response($content);
     }
 }
