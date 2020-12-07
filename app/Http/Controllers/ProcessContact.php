@@ -6,12 +6,10 @@ use App\Domain\Contact\ContactWriterService as Writer;
 use App\Domain\Contact\Message;
 use App\Domain\Contact\User;
 use App\Domain\Mail\MailService as Mail;
-use App\Foundation\Container;
 use App\Foundation\Request\Request;
 use App\Foundation\Request\Validator;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Throwable;
 
 class ProcessContact
 {
@@ -26,7 +24,7 @@ class ProcessContact
         $this->mail = $mail;
     }
 
-    public function __invoke()
+    public function __invoke(): RedirectResponse
     {
         if ($this->validate($this->request) === false) {
             var_dump('pues NO!!');

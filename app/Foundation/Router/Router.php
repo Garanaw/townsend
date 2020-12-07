@@ -52,7 +52,9 @@ class Router
     {
         $this->request = $request;
         if (!$route = $this->findRoute($request)) {
-            return new Response(null, Response::HTTP_NOT_FOUND);
+            return $this->prepareResponse($this->runRoute($request, function () {
+                return '404.php';
+            }));
         }
 
         $controller = $this->container->make($route['action']);
