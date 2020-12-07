@@ -24,14 +24,14 @@ abstract class Model
         $this->connection = Container::getInstance()->make(DBConnection::class);
     }
 
-    public function fill(?array $fillable): static
+    public function fill(?array $fillable = []): static
     {
         if (empty($fillable)) {
             return $this;
         }
 
         foreach ($fillable as $key => $value) {
-            if ($this->isFillable($key, $value)) {
+            if ($this->isFillable($key)) {
                 $this->{$key} = $value;
             }
         }
@@ -42,13 +42,15 @@ abstract class Model
     public function syncOriginalAttributes(): void
     {
         foreach ($this->fillable as $key => $_) {
-            $this->original[$key] = $this->{$key};
+            if (isset($this->{$key})) {
+                $this->original[$key] = $this->{$key};
+            }
         }
     }
 
-    protected function isFillable(string $key, mixed $value): bool
+    protected function isFillable(string $key): bool
     {
-        return array_key_exists($key, $this->fillable) && $this->fillable[$key] === gettype($value);
+        return array_key_exists($key, $this->fillable);
     }
 
     public function getId(): ?int
@@ -75,7 +77,7 @@ abstract class Model
             $this->getInsertClause($fields),
             $fields
         );
-
+        $this->syncOriginalAttributes();
         return $this;
     }
 
@@ -106,16 +108,17 @@ abstract class Model
     public function getFields(): array
     {
         return collect($this->fillable)
-            ->flatMap(fn(string $cast, string $fillable): array => [$fillable => $this->cast($fillable)])
+            ->flatMap(fn(string $cast, string $fillable): array => [$fillable => $this->unCast($fillable)])
             ->all();
     }
 
-    protected function cast(mixed $fillable): mixed
+    protected function unCast(mixed $fillable): mixed
     {
         return match ($this->fillable[$fillable]) {
             'bool' => $this->{$fillable} ? 1 : 0,
             'string' => (string)$this->{$fillable},
-            'int'|'integer' => (int)$this->{$fillable}
+            'int','integer' => (int)$this->{$fillable},
+            'carbon' => $this->{$fillable}->toDateTimeString(),
         };
     }
 
