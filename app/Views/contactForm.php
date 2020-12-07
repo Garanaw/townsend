@@ -14,14 +14,12 @@
     <!-- Styles -->
     <style>
         .container {
-            display: flex;
-            width: 100%;
-            max-width: 100%;
+            width: 90%;
+            max-width: 90%;
             padding-right: 15px;
             padding-left: 15px;
             margin-right: auto;
             margin-left: auto;
-            justify-content: center;
         }
 
         label {
@@ -69,6 +67,25 @@
         .text-right {
             text-align: right !important;
         }
+
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -76,47 +93,49 @@
         <header style="display: flex; justify-content: center; padding: 10px">
             <h2>Contact Form</h2>
         </header>
-        <form method="POST" action="/contact">
+        <form method="POST" action="/contact" style="">
             <input
-                    type="hidden"
-                    name="_token"
-                    value="<?php echo \App\Foundation\Container::getInstance()->make('session')->token() ?>"
+                type="hidden"
+                name="_token"
+                value="<?php echo \App\Foundation\Container::getInstance()->make('session')->token() ?>"
             >
-            <div>
-                <div class="row">
-                    <div class="col text-right">
-                        <label for="name">Name</label>
-                    </div>
-                    <div class="col">
-                        <input type="text" id="name" class="form-control" name="name" placeholder="name" required>
-                    </div>
+            <div class="row">
+                <div class="col text-right">
+                    <label for="name">Name</label>
                 </div>
-                <div class="row">
-                    <div class="col text-right">
-                        <label for="phone">Phone Number</label>
-                    </div>
-                    <div class="col">
-                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="phone" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col text-right">
-                        <label for="email">Email Address</label>
-                    </div>
-                    <div class="col">
-                        <input type="email" id="email" class="form-control" name="email" placeholder="email" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col text-right">
-                        <label for="message">Message</label>
-                    </div>
-                    <div class="col">
-                        <textarea id="message" class="form-control" name="message" placeholder="message" required></textarea>
-                    </div>
+                <div class="col">
+                    <input type="text" id="name" class="form-control" name="name" placeholder="name" required>
                 </div>
             </div>
-            <button type="submit">Contact!</button>
+            <div class="row">
+                <div class="col text-right">
+                    <label for="phone">Phone Number</label>
+                </div>
+                <div class="col">
+                    <input type="tel" id="phone" name="phone" class="form-control" placeholder="phone" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-right">
+                    <label for="email">Email Address</label>
+                </div>
+                <div class="col">
+                    <input type="email" id="email" class="form-control" name="email" placeholder="email" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-right">
+                    <label for="message">Message</label>
+                </div>
+                <div class="col">
+                    <textarea id="message" class="form-control" name="message" placeholder="message" required></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="padding-top: 20px; display: flex; justify-content: center">
+                    <button type="submit" class="btn">Contact!</button>
+                </div>
+            </div>
         </form>
     </div>
 </body>
