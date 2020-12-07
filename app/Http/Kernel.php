@@ -3,8 +3,8 @@
 namespace App\Http;
 
 use App\Foundation\Container;
+use App\Foundation\Request\Request;
 use App\Foundation\Router\Router;
-use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 class Kernel

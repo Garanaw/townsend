@@ -2,7 +2,6 @@
 
 namespace App\Foundation;
 
-use App\Foundation\Router\Router;
 use Closure;
 use ReflectionClass;
 use ReflectionException;
@@ -96,6 +95,9 @@ class Container
 
     protected function getConcrete($abstract)
     {
+        if (!is_string($abstract)) {
+            return $abstract;
+        }
         if (isset($this->bindings[$abstract])) {
             return $this->bindings[$abstract]['concrete'];
         }
