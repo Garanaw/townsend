@@ -71,6 +71,7 @@ class Router
                 return $route;
             }
         }
+        return null;
     }
 
     private function runRoute(Request $request, callable $action)
@@ -103,6 +104,9 @@ class Router
 
     private function prepareResponse($content)
     {
+        if ($content instanceof Response) {
+            return $content;
+        }
         return new Response($content);
     }
 }
