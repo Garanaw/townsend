@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Symfony\Component\HttpFoundation\Response;
-
 class ShowContact
 {
     public function __invoke(): string
