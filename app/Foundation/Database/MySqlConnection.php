@@ -2,7 +2,9 @@
 
 namespace App\Foundation\Database;
 
+use App\Domain\Contact\User;
 use App\Foundation\Config\Config;
+use Illuminate\Support\Collection;
 use PDO;
 
 class MySqlConnection implements DBConnection
@@ -29,20 +31,46 @@ class MySqlConnection implements DBConnection
         return 'mysql:host=' . $host . ':' . $port . ';dbname=' . $database;
     }
 
-    public function insertGetId(string $sql, ?array $params = null): int
+    public function insertGetId(string $table, array $fields): int
     {
-        $this->insert($sql, $params);
+        $this->insert($table, $fields);
         return (int)$this->pdo->lastInsertId();
     }
 
-    public function insert(string $sql, ?array $params = null)
+    public function insert(string $table, array $fields)
     {
+        $columns = implode(', ', array_keys($fields));
+        $values = collect($fields)
+            ->keys()
+            ->map(fn(string $field): string => ":$field")
+            ->implode(', ');
+        $sql = "INSERT INTO $table ($columns) values ($values);";
         $stm = $this->pdo->prepare($sql);
-        $stm->execute($params);
+        $stm->execute($fields);
     }
 
-    public function get()
+    public function update(string $table, array $values, array $where)
     {
-        // TODO: Implement get() method.
+        $set = collect($values)
+            ->map(static fn(mixed $value, string $column): string => "$column=:$column")
+            ->implode(', ');
+        $compiledWhere = $this->compileWhere($where);
+        $sql = "UPDATE TABLE $table SET $set $compiledWhere";
+        return $this->pdo->prepare($sql)->execute(array_merge($values, $where));
+    }
+
+    public function get(string $table, array $where): Collection
+    {
+        $compiledWhere = $this->compileWhere($where);
+        $stm = $this->pdo->prepare("SELECT * FROM $table WHERE $compiledWhere");
+        $stm->execute($where);
+        return collect($stm->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    protected function compileWhere(array $where): string
+    {
+        return collect($where)
+            ->map(static fn (mixed $value, string $column): string => "$column=:$column")
+            ->implode(' AND ');
     }
 }

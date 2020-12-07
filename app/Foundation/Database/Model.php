@@ -3,6 +3,7 @@
 namespace App\Foundation\Database;
 
 use App\Foundation\Container;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 abstract class Model
@@ -32,7 +33,7 @@ abstract class Model
 
         foreach ($fillable as $key => $value) {
             if ($this->isFillable($key)) {
-                $this->{$key} = $value;
+                $this->{$key} = $this->cast($key, $value);
             }
         }
 
@@ -66,30 +67,30 @@ abstract class Model
 
     public function exists(): bool
     {
-        return $this->id !== null;
+        return $this->getId() !== null;
     }
-
 
     public function save(): self
     {
         $fields = $this->getFields();
-        $this->id = $this->connection->insertGetId(
-            $this->getInsertClause($fields),
-            $fields
-        );
-        $this->syncOriginalAttributes();
-        return $this;
-    }
-
-    protected function getInsertClause(array $fields): string
-    {
-        $columns = implode(', ', array_keys($fields));
-        $values = collect($fields)
-            ->keys()
-            ->map(fn(string $field): string => ":$field")
-            ->implode(', ');
         $table = $this->getTable();
-        return "INSERT INTO $table ($columns) values ($values);";
+
+        if ($this->exists() === false) {
+            $this->id = $this->connection->insertGetId($table, $fields);
+            $this->syncOriginalAttributes();
+            return $this;
+        }
+
+        if ($this->isDirty()) {
+            $this->connection->update(
+                $table,
+                $fields,
+                ['id' => $this->getId()]
+            );
+            $this->syncOriginalAttributes();
+        }
+
+        return $this;
     }
 
     protected function getTable(): string
@@ -110,6 +111,34 @@ abstract class Model
         return collect($this->fillable)
             ->flatMap(fn(string $cast, string $fillable): array => [$fillable => $this->unCast($fillable)])
             ->all();
+    }
+
+    public function isDirty(): bool
+    {
+        foreach ($this->original as $field => $value) {
+            if (isset($this->{$field}) && $this->{$field} !== $value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function first(array $where): ?static
+    {
+        $model = $this->connection->get($this->getTable(), $where)->first();
+        return $model
+            ? self::make($model)->setId((int)$model['id'])
+            : null;
+    }
+
+    protected function cast(string $fillable, mixed $value): mixed
+    {
+        return match ($this->fillable[$fillable]) {
+            'bool' => (bool)$value,
+            'string' => (string)$value,
+            'int','integer' => (int)$value,
+            'carbon' => Carbon::parse($value),
+        };
     }
 
     protected function unCast(mixed $fillable): mixed
