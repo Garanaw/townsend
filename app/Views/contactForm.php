@@ -18,7 +18,14 @@
     <div id="app">
         <main class="">
             <form method="POST" action="/contact">
-                <button type="submit">Enviar</button>
+                <input type="hidden" name="_token" value="<?php echo \App\Foundation\Container::getInstance()->make('session')->token() ?>">
+                <div>
+                    <input type="text" name="name" placeholder="name" required>
+                    <input type="tel" name="phone" placeholder="phone" required>
+                    <input type="email" name="email" placeholder="email" required>
+                    <textarea name="message" placeholder="message" required></textarea>
+                </div>
+                <button type="submit">Contact!</button>
             </form>
         </main>
     </div>
